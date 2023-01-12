@@ -1,6 +1,7 @@
 package com.gj.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Getter;
@@ -16,8 +17,9 @@ import javax.annotation.Resource;
 @Slf4j
 @Component
 public class SocketServer {
+
     @Resource
-    private SocketInitializer socketInitializer;
+    private HttpServerChannelInitializer httpServerChannelInitializer;
 
     @Getter
     private ServerBootstrap serverBootstrap;
@@ -53,6 +55,8 @@ public class SocketServer {
         this.serverBootstrap = new ServerBootstrap();
         this.serverBootstrap.group(bossGroup, workerGroup) // 两个线程组加入进来
                 .channel(NioServerSocketChannel.class)  // 配置为nio类型
-                .childHandler(this.socketInitializer); // 加入自己的初始化器
+                .childHandler(this.httpServerChannelInitializer) // 加入自己的初始化器
+                .option(ChannelOption.SO_BACKLOG,128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
     }
 }
